@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Programmer - HTML</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Blog Tutorial Programmer</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="tutorial.html?tutorial=html">Tutorial HTML</a></li>
+                <li><a href="tutorial.html?tutorial=css">Tutorial CSS</a></li>
+                <li><a href="tutorial.html?tutorial=javascript">Tutorial JavaScript</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2 id="tutorial-title">Tutorial HTML</h2>
+        <div id="tutorial-content">
+            <!-- Konten dari PDF akan dimuat di sini -->
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Blog Tutorial Programmer. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Ambil parameter query dari URL untuk menentukan tutorial mana yang dipilih
+        const urlParams = new URLSearchParams(window.location.search);
+        const tutorial = urlParams.get('tutorial');
+
+        // Tentukan file PDF berdasarkan tutorial yang dipilih
+        let pdfUrl = '';
+        let title = '';
+
+        if (tutorial === 'html') {
+            pdfUrl = 'tutorial.pdf';  // Ganti dengan file PDF terkait HTML
+            title = 'Tutorial HTML';
+        } else if (tutorial === 'css') {
+            pdfUrl = 'tutorial_css.pdf';  // Misalnya tutorial CSS
+            title = 'Tutorial CSS';
+        } else if (tutorial === 'javascript') {
+            pdfUrl = 'tutorial_js.pdf';  // Misalnya tutorial JavaScript
+            title = 'Tutorial JavaScript';
+        }
+
+        document.getElementById('tutorial-title').innerText = title;
+
+        // Menggunakan PDF.js untuk memuat konten PDF
+        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+            console.log('PDF loaded');
+            pdf.getPage(1).then(function(page) {
+                console.log('Page loaded');
+                const scale = 1.5;
+                const viewport = page.getViewport({ scale: scale });
+
+                // Render halaman PDF ke dalam div
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                document.getElementById('tutorial-content').appendChild(canvas);
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                page.render(renderContext);
+            });
+        });
+    </script>
+</body>
+  </html>
+  
