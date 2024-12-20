@@ -6,6 +6,24 @@
     <title>Tutorial Programmer - HTML</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <style>
+        /* Styling untuk teks PDF yang ditampilkan */
+        .page-content {
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .page-content h3 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .page-content p {
+            font-size: 16px;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -22,7 +40,7 @@
     <main>
         <h2 id="tutorial-title">Tutorial HTML</h2>
         <div id="tutorial-content">
-            <!-- Konten dari PDF akan dimuat di sini -->
+            <!-- Konten teks PDF akan dimuat di sini -->
         </div>
     </main>
     <footer>
@@ -54,26 +72,37 @@
         // Menggunakan PDF.js untuk memuat konten PDF
         pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
             console.log('PDF loaded');
-            pdf.getPage(1).then(function(page) {
-                console.log('Page loaded');
-                const scale = 1.5;
-                const viewport = page.getViewport({ scale: scale });
+            const numPages = pdf.numPages; // Mengetahui jumlah halaman dalam PDF
+            console.log('Number of pages: ' + numPages);
 
-                // Render halaman PDF ke dalam div
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                document.getElementById('tutorial-content').appendChild(canvas);
+            // Variabel untuk menyimpan konten teks seluruh halaman
+            let fullText = '';
 
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext);
-            });
+            // Render semua halaman dan ekstrak teks
+            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                pdf.getPage(pageNum).then(function(page) {
+                    console.log('Page ' + pageNum + ' loaded');
+
+                    // Ekstrak teks dari halaman
+                    page.getTextContent().then(function(textContent) {
+                        let pageText = '';
+                        textContent.items.forEach(function(item) {
+                            pageText += item.str + ' ';  // Gabungkan teks dari setiap item
+                        });
+
+                        // Tambahkan teks halaman ke dalam fullText
+                        fullText += `<div class="page-content"><h3>Halaman ${pageNum}</h3><p>${pageText}</p></div>`;
+
+                        // Setelah semua halaman diproses, tampilkan teks di halaman
+                        if (pageNum === numPages) {
+                            document.getElementById('tutorial-content').innerHTML = fullText;
+                        }
+                    });
+                });
+            }
+        }).catch(function(error) {
+            console.error('Error loading PDF: ' + error);
         });
     </script>
 </body>
-  </html>
-  
+</html>
